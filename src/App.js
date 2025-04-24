@@ -8,6 +8,7 @@ import WatchedSummary from "./components/WatchedSummary";
 import WatchedMovieList from "./components/WatchedMovieList";
 import Loader from "./components/Loader";
 import ErrorComponent from "./components/ErrorComponent";
+import MovieDetails from "./components/MovieDetails";
 
 const tempMovieData = [
   {
@@ -56,7 +57,7 @@ const tempWatchedData = [
   },
 ];
 
-const APIKEY = "df4c0274";
+const API = "http://www.omdbapi.com/?apikey=df4c0274";
 
 export default function App() {
   const [movies, setMovies] = useState([]);
@@ -64,6 +65,7 @@ export default function App() {
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [selectedId, setSelectedId] = useState(null);
 
   useEffect(
     function () {
@@ -71,9 +73,7 @@ export default function App() {
         try {
           setIsLoading(true);
           setError("");
-          const response = await fetch(
-            `http://www.omdbapi.com/?apikey=${APIKEY}&s=${query}`
-          );
+          const response = await fetch(`${API}&s=${query}`);
 
           if (!response.ok) throw new Error("Something went wrong");
 
@@ -103,6 +103,38 @@ export default function App() {
     [query]
   );
 
+  useEffect(
+    function () {
+      async function fetchMovieById(id) {
+        try {
+          setIsLoading(true);
+          setError("");
+          const response = await fetch(`${API}&i=${id}`);
+
+          if (!response.ok) throw new Error("Something went wrong");
+
+          const data = await response.json();
+          console.log(data);
+        } catch (err) {
+          console.log(err.message);
+          setError(err.message);
+        } finally {
+          setIsLoading(false);
+        }
+      }
+
+      fetchMovieById(selectedId);
+    },
+    [selectedId]
+  );
+
+  function handleSelectMovie(id) {
+    setSelectedId((selectedId) => (selectedId === id ? null : id));
+  }
+
+  function handleCloseMovie() {
+    setSelectedId(null);
+  }
   return (
     <>
       <NavBar>
@@ -112,12 +144,20 @@ export default function App() {
       <main className="main">
         <Box>
           {isLoading && <Loader />}
-          {!isLoading && !error && <MovieList movies={movies} />}
+          {!isLoading && !error && (
+            <MovieList movies={movies} onSelectMovie={handleSelectMovie} />
+          )}
           {error && <ErrorComponent message={error} />}
         </Box>
         <Box>
-          <WatchedSummary watched={watched} />
-          <WatchedMovieList watched={watched} />
+          {selectedId ? (
+            <MovieDetails id={selectedId} onCloseMovie={handleCloseMovie} />
+          ) : (
+            <>
+              <WatchedSummary watched={watched} />
+              <WatchedMovieList watched={watched} />
+            </>
+          )}
         </Box>
       </main>
     </>
