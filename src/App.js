@@ -22,11 +22,16 @@ export default function App() {
 
   useEffect(
     function () {
+      const controller = new AbortController();
+
       async function fetchMovieByName(query) {
         try {
           setIsLoading(true);
           setError("");
-          const response = await fetch(`${API}&s=${query}`);
+          setSelectedId(null);
+          const response = await fetch(`${API}&s=${query}`, {
+            signal: controller.signal,
+          });
 
           if (!response.ok) throw new Error("Something went wrong");
 
@@ -36,9 +41,14 @@ export default function App() {
 
           setMovies(data.Search);
           setIsLoading(false);
+          setError("");
         } catch (err) {
           console.error(err.message);
-          setError(err.message);
+
+          if (err.name !== "AbortError") {
+            setError(err.message);
+          }
+
           setMovies([]);
         } finally {
           setIsLoading(false);
@@ -52,6 +62,10 @@ export default function App() {
       }
 
       fetchMovieByName(query);
+
+      return function () {
+        controller.abort();
+      };
     },
     [query]
   );
@@ -69,8 +83,9 @@ export default function App() {
   }
 
   function handleDeleteWatchedMovie(id) {
-    setWatched((prevMovie) =>  prevMovie.filter((movie) => movie.imdbID !== id));
+    setWatched((prevMovie) => prevMovie.filter((movie) => movie.imdbID !== id));
   }
+
   return (
     <>
       <NavBar>
@@ -96,7 +111,10 @@ export default function App() {
           ) : (
             <>
               <WatchedSummary watched={watched} />
-              <WatchedMovieList watched={watched}  onDeleteFromWatch={handleDeleteWatchedMovie} />
+              <WatchedMovieList
+                watched={watched}
+                onDeleteFromWatch={handleDeleteWatchedMovie}
+              />
             </>
           )}
         </Box>

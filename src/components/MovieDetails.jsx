@@ -1,14 +1,18 @@
 import { useEffect, useState } from "react";
 import StarRating from "./StarRating";
+import Loader from "./Loader";
 
 const API = "http://www.omdbapi.com/?apikey=df4c0274";
 
 function MovieDetails({ id, onCloseMovie, onAddToWatch, watched }) {
   const [movie, setMovie] = useState({});
   const [userRatings, setUserRatings] = useState(0);
+  const [isLoading, setIsLoading] = useState(false);
 
   const isWatched = watched.map((movie) => movie.imdbID).includes(id);
-  const watchedUserRating = watched.find((movie) => movie.imdbID === id)?.userRatings;
+  const watchedUserRating = watched.find(
+    (movie) => movie.imdbID === id
+  )?.userRatings;
 
   const {
     imdbID,
@@ -26,17 +30,31 @@ function MovieDetails({ id, onCloseMovie, onAddToWatch, watched }) {
   useEffect(
     function () {
       async function fetchMovieById(id) {
+        setIsLoading(true);
         const response = await fetch(`${API}&i=${id}`);
 
         if (!response.ok) throw new Error("Something went wrong");
 
         const data = await response.json();
         setMovie(data);
+        setIsLoading(false);
       }
 
       fetchMovieById(id);
     },
     [id]
+  );
+
+  useEffect(
+    function () {
+      if (!title) return;
+      document.title = `Movie | ${title}`;
+
+      return function () {
+        document.title = "Grab Popcorn";
+      };
+    },
+    [title]
   );
 
   function handleAddMovie() {
@@ -53,53 +71,79 @@ function MovieDetails({ id, onCloseMovie, onAddToWatch, watched }) {
     onCloseMovie();
   }
 
+  useEffect(
+    function () {
+      function callback(e) {
+        if (e.code === "Escape") {
+          onCloseMovie();
+          console.log("CLOSING!");
+        }
+      }
+      document.addEventListener("keydown", callback);
+
+      return function () {
+        document.removeEventListener("keydown", callback);
+      };
+    },
+    [onCloseMovie]
+  );
+
   return (
     <div className="details">
-      <header>
-        <button className="btn-back" onClick={onCloseMovie}>
-          &larr;
-        </button>
-        <img src={poster} alt={`poster of ${title}`} />
-        <div className="details-overview">
-          <h2>{title}</h2>
-          <p>
-            {released} . {runtime}
-          </p>
-          <p>{genre}</p>
-          <p>
-            <span>⭐</span>
-            {imdbRating} IMDb Rating
-          </p>
-        </div>
-      </header>
-
-      <section>
-        <div className="rating">
-          {!isWatched ? (
-            <>
-              <StarRating
-                size={24}
-                maxRating={10}
-                onSetRating={setUserRatings}
-              />
-              {userRatings > 0 && (
-                <button onClick={handleAddMovie} className="btn-add">
-                  Add to watched
-                </button>
+      {isLoading ? (
+        <Loader />
+      ) : (
+        <>
+          {" "}
+          <header>
+            <button className="btn-back" onClick={onCloseMovie}>
+              &larr;
+            </button>
+            <img src={poster} alt={`poster of ${title}`} />
+            <div className="details-overview">
+              <h2>{title}</h2>
+              <p>
+                {released} . {runtime}
+              </p>
+              <p>{genre}</p>
+              <p>
+                <span>⭐</span>
+                {imdbRating} IMDb Rating
+              </p>
+            </div>
+          </header>
+          <section>
+            <div className="rating">
+              {!isWatched ? (
+                <>
+                  <StarRating
+                    size={24}
+                    maxRating={10}
+                    onSetRating={setUserRatings}
+                  />
+                  {userRatings > 0 && (
+                    <button onClick={handleAddMovie} className="btn-add">
+                      Add to watched
+                    </button>
+                  )}
+                </>
+              ) : (
+                <>
+                  <p>
+                    You rated this movie with {watchedUserRating}{" "}
+                    <span>⭐</span>{" "}
+                  </p>
+                </>
               )}
-            </>
-          ) : (
-            <>
-            <p>You rated this movie with {watchedUserRating} <span>⭐</span> </p>
-            </>
-          )}
-        </div>
-        <p>
-          <em>{plot}</em>
-        </p>
-        <p>Starring: {actors}</p>
-        <p>Directed by {director}</p>
-      </section>
+            </div>
+            <p>
+              <em>{plot}</em>
+            </p>
+            <p>Starring: {actors}</p>
+            <p>Directed by {director}</p>
+          </section>
+        </>
+      )}
     </div>
   );
 }

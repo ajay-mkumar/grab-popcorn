@@ -2,7 +2,6 @@ const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 function WatchedSummary({ watched }) {
-  
   const avgImdbRating = average(watched.map((movie) => movie.imdbRating || 0));
   const avgUserRating = average(watched.map((movie) => movie.userRatings || 0));
   const avgRuntime = average(watched.map((movie) => movie.runtime || 0));
@@ -17,11 +16,11 @@ function WatchedSummary({ watched }) {
         </p>
         <p>
           <span>⭐️</span>
-          <span>{avgImdbRating.fixed()}</span>
+          <span>{avgImdbRating.toFixed()}</span>
         </p>
         <p>
           <span>🌟</span>
-          <span>{avgUserRating.fixed()}</span>
+          <span>{avgUserRating.toFixed()}</span>
         </p>
         <p>
           <span>⏳</span>
