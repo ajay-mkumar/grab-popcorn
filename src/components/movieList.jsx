@@ -3,8 +3,8 @@ import Movie from "./Movie";
 function MovieList({ movies }) {
   return (
     <ul className="list">
-      {movies?.map((movie) => (
-        <Movie movie={movie} />
+      {Array.isArray(movies) && movies?.map((movie) => (
+        <Movie key={movie.imdbID} movie={movie} />
       ))}
     </ul>
   );
