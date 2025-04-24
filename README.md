@@ -5,7 +5,8 @@
 
 ## 📸 Preview
 
-> *Add a screenshot or demo GIF here if available.*
+![image](https://github.com/user-attachments/assets/8b952c3f-767c-4755-b3f7-e042f277b04e)
+
 
 ## 🚀 Features
 
