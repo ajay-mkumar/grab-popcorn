@@ -10,7 +10,8 @@ import Loader from "./components/Loader";
 import ErrorComponent from "./components/ErrorComponent";
 import MovieDetails from "./components/MovieDetails";
 
-const API = "http://www.omdbapi.com/?apikey=df4c0274";
+const APIKEY = process.env.REACT_APP_OMDB_KEY;
+
 
 export default function App() {
   const [movies, setMovies] = useState([]);
@@ -29,7 +30,7 @@ export default function App() {
           setIsLoading(true);
           setError("");
           setSelectedId(null);
-          const response = await fetch(`${API}&s=${query}`, {
+          const response = await fetch(`http://www.omdbapi.com/?apikey=${APIKEY}&s=${query}`, {
             signal: controller.signal,
           });
 

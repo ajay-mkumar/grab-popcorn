@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import StarRating from "./StarRating";
 import Loader from "./Loader";
+const APIKEY = process.env.REACT_APP_OMDB_KEY;
 
-const API = "http://www.omdbapi.com/?apikey=df4c0274";
 
 function MovieDetails({ id, onCloseMovie, onAddToWatch, watched }) {
   const [movie, setMovie] = useState({});
@@ -31,7 +31,7 @@ function MovieDetails({ id, onCloseMovie, onAddToWatch, watched }) {
     function () {
       async function fetchMovieById(id) {
         setIsLoading(true);
-        const response = await fetch(`${API}&i=${id}`);
+        const response = await fetch(`http://www.omdbapi.com/?apikey=${APIKEY}&i=${id}`);
 
         if (!response.ok) throw new Error("Something went wrong");
 
