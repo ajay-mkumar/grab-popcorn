@@ -10,7 +10,7 @@ import Loader from "./components/Loader";
 import ErrorComponent from "./components/ErrorComponent";
 import MovieDetails from "./components/MovieDetails";
 import { useMovie } from "./hooks/useMovie";
-import { useLocalStorage } from "./useLocalStorage";
+import { useLocalStorage } from "./hooks/useLocalStorage";
 
 export default function App() {
   const [watched, setWatched] = useLocalStorage([], "watched");
