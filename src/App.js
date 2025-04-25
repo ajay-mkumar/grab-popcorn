@@ -12,10 +12,13 @@ import MovieDetails from "./components/MovieDetails";
 
 const APIKEY = process.env.REACT_APP_OMDB_KEY;
 
-
 export default function App() {
   const [movies, setMovies] = useState([]);
-  const [watched, setWatched] = useState([]);
+  const [watched, setWatched] = useState(function () {
+    const stored = localStorage.getItem("watched");
+    return JSON.parse(stored);
+  });
+
   const [query, setQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
@@ -30,9 +33,12 @@ export default function App() {
           setIsLoading(true);
           setError("");
           setSelectedId(null);
-          const response = await fetch(`http://www.omdbapi.com/?apikey=${APIKEY}&s=${query}`, {
-            signal: controller.signal,
-          });
+          const response = await fetch(
+            `http://www.omdbapi.com/?apikey=${APIKEY}&s=${query}`,
+            {
+              signal: controller.signal,
+            }
+          );
 
           if (!response.ok) throw new Error("Something went wrong");
 
@@ -86,6 +92,12 @@ export default function App() {
   function handleDeleteWatchedMovie(id) {
     setWatched((prevMovie) => prevMovie.filter((movie) => movie.imdbID !== id));
   }
+  useEffect(
+    function () {
+      localStorage.setItem("watched", JSON.stringify(watched));
+    },
+    [watched]
+  );
 
   return (
     <>

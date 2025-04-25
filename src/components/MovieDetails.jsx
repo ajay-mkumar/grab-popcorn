@@ -1,14 +1,13 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import StarRating from "./StarRating";
 import Loader from "./Loader";
 const APIKEY = process.env.REACT_APP_OMDB_KEY;
-
 
 function MovieDetails({ id, onCloseMovie, onAddToWatch, watched }) {
   const [movie, setMovie] = useState({});
   const [userRatings, setUserRatings] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
-
+  const countRef = useRef(0);
   const isWatched = watched.map((movie) => movie.imdbID).includes(id);
   const watchedUserRating = watched.find(
     (movie) => movie.imdbID === id
@@ -31,7 +30,9 @@ function MovieDetails({ id, onCloseMovie, onAddToWatch, watched }) {
     function () {
       async function fetchMovieById(id) {
         setIsLoading(true);
-        const response = await fetch(`http://www.omdbapi.com/?apikey=${APIKEY}&i=${id}`);
+        const response = await fetch(
+          `http://www.omdbapi.com/?apikey=${APIKEY}&i=${id}`
+        );
 
         if (!response.ok) throw new Error("Something went wrong");
 
@@ -43,6 +44,13 @@ function MovieDetails({ id, onCloseMovie, onAddToWatch, watched }) {
       fetchMovieById(id);
     },
     [id]
+  );
+
+  useEffect(
+    function () {
+      if (userRatings) countRef.current = countRef.current + 1;
+    },
+    [userRatings]
   );
 
   useEffect(
@@ -65,6 +73,7 @@ function MovieDetails({ id, onCloseMovie, onAddToWatch, watched }) {
       runtime: Number(runtime.split(" ").at(0)),
       imdbRating: Number(imdbRating),
       userRatings,
+      countRatingDecisions: countRef.current,
     };
 
     onAddToWatch(newWatchedMovie);
