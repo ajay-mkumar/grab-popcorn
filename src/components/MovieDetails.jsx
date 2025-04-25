@@ -32,7 +32,7 @@ function MovieDetails({ id, onCloseMovie, onAddToWatch, watched }) {
       async function fetchMovieById(id) {
         setIsLoading(true);
         const response = await fetch(
-          `http://www.omdbapi.com/?apikey=${APIKEY}&i=${id}`
+          `https://www.omdbapi.com/?apikey=${APIKEY}&i=${id}`
         );
 
         if (!response.ok) throw new Error("Something went wrong");
